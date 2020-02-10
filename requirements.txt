@@ -1,0 +1,6 @@
+requests
+h5py
+networkx
+git+https://github.com/maciejkula/spotlight
+scipy
+sklearn
