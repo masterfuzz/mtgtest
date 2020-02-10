@@ -2,6 +2,7 @@ import spotlight.interactions
 import spotlight.factorization.implicit
 import json
 import glob
+import os
 import numpy as np
 
 class CardList:
@@ -15,26 +16,36 @@ class CardList:
             self.cd[name] = self.max_id
         return self.cd[name]
 
-card_ids = CardList()
-deck_seq = []
-card_seq = []
+def train():
+    card_ids = CardList()
+    deck_seq = []
+    card_seq = []
 
-deck_id = 0
-for x in glob.glob("decks/*.json"):
-    print(x)
-    with open(x) as fh:
-        deck = json.load(fh)
-        cards = [c['name'] for c in deck["cards"]] + [c['name'] for c in deck['sideboard']]
-        deck_id += 1
+    deck_id = 0
+    for x in glob.glob("decks/*.json"):
+        print(x)
+        with open(x) as fh:
+            deck = json.load(fh)
+            cards = [c['name'] for c in deck["cards"]] + [c['name'] for c in deck['sideboard']]
+            deck_id += 1
 
-        deck_seq += [deck_id] * len(cards)
-        card_seq += [card_ids.get(c) for c in cards]
+            deck_seq += [deck_id] * len(cards)
+            card_seq += [card_ids.get(c) for c in cards]
 
 
-interactions = spotlight.interactions.Interactions(
-    np.array(deck_seq, np.int32),
-    np.array(card_seq, np.int32)
-)
+    interactions = spotlight.interactions.Interactions(
+        np.array(deck_seq, np.int32),
+        np.array(card_seq, np.int32)
+    )
 
-model = spotlight.factorization.implicit.ImplicitFactorizationModel()
-# model.fit(interactions)
+    model = spotlight.factorization.implicit.ImplicitFactorizationModel()
+    model.fit(interactions, verbose=True)
+    return model
+
+if os.path.exists("spotlight.model"):
+    print("loading model from disk")
+    import torch
+    model = torch.load("spotlight.model")
+else:
+    print("model not found, training...")
+    model = train()

@@ -3,3 +3,4 @@ mtgtop8/
 decks/
 node_modules/
 venv/
+.DS_Store
