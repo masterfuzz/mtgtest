@@ -4,3 +4,5 @@ networkx
 git+https://github.com/maciejkula/spotlight
 scipy
 sklearn
+node2vec
+progressbar2

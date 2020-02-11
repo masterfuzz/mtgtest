@@ -4,3 +4,6 @@ decks/
 node_modules/
 venv/
 .DS_Store
+__pycache__/
+cards/
+*.model
