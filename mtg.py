@@ -14,6 +14,16 @@ def rec(model, deck):
     
     return model.similar_by_vector(center)
 
+class Deck:
+    def __init__(self, j):
+        self.side = j.get('sideboard', [])
+        self.main = j.get('cards', [])
+        self.player = j.get('player', '')
+        self.result = j.get('result', '')
+
+    def names(self):
+        return set(c['name'] for c in self.main + self.side)
+
 class Card:
     KEYWORDS = set()
     def __init__(self, j):
@@ -36,6 +46,10 @@ class Card:
         if self.power:
             r += f" {self.power} / {self.toughness}"
         return r
+
+    def sanitized_text(self):
+        return self.text.lower().replace('\n', ' ').replace(',', '').replace('}{', '} {').replace('.', ' ').replace(':', ' : ')
+
 
     def __str__(self):
         return self.to_text(with_name=True)
@@ -67,6 +81,27 @@ class CardDB:
 
     def items(self):
         return self.cards.items()
+
+class DeckDB:
+    def __init__(self, glob_path="decks/*.json"):
+        import glob
+
+        self.decks = list(self._load(glob.glob(glob_path)))
+
+    def _load(self, file_names):
+        for deck_file in file_names:
+            with open(deck_file) as fh:
+                yield Deck(json.load(fh))
+
+    def card_graph(self):
+        G = nx.Graph()
+        for deck in self.decks:
+            for card_a in deck.names():
+                for card_b in deck.names():
+                    if card_a == card_b: continue
+                    G.add_edge(card_a, card_b)
+        return G
+
 
 def get_graph(cards):
     G = nx.Graph()
