@@ -1,3 +1,4 @@
+numpy
 requests
 h5py
 networkx
@@ -8,3 +9,5 @@ node2vec
 progressbar2
 cython
 git+https://github.com/epfml/sent2vec.git
+orjson
+

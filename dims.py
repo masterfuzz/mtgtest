@@ -38,11 +38,17 @@ def to_vec(cards):
         vec = []
         for i, w in enumerate(c.sanitized_text().split()):
             if i == len(dims):
-                dims.append({'self': 0})
+                dims.append({'': 0})
             if w not in dims[i]:
                 dims[i][w] = max(dims[i].values()) + 1
             vec.append(dims[i][w])
         res.append(vec)
+    # some scaling
+    res = [[
+        x / len(dims[j])
+        for j, x in enumerate(v)
+    ] for v in res]
+
     return dims, res
 
 

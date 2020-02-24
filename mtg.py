@@ -1,5 +1,6 @@
 import random
-import json
+import re
+import orjson as json
 import networkx as nx
 import progressbar
 
@@ -48,8 +49,14 @@ class Card:
         return r
 
     def sanitized_text(self):
-        return self.text.lower().replace('\n', ' ').replace(',', '').replace('}{', '} {').replace('.', ' ').replace(':', ' : ')
-
+        _remove_help_text = re.sub(r"\([^)]*\)", "", self.text)
+        _lower = _remove_help_text.lower()
+        _punc = re.sub(r"[\n,.]", " ", _lower)
+        _cost = _punc.replace(":", " COST ")
+        _mana = _cost.replace("}{", "} {")
+        _self = _mana.replace(self.name, 'SELF')
+        
+        return _self
 
     def __str__(self):
         return self.to_text(with_name=True)
@@ -68,11 +75,11 @@ class Card:
 class CardDB:
     def __init__(self, db_file="cards/AllCards.json", keyword_file="cards/Keywords.json"):
         with open(keyword_file) as fh:
-            keyword_json = json.load(fh)
+            keyword_json = json.loads(fh.read())
             Card.KEYWORDS.update(keyword_json['abilityWords'] + keyword_json['keywordAbilities'] + keyword_json['keywordActions'])
 
         with open(db_file) as fh:
-            card_json = json.load(fh)
+            card_json = json.loads(fh.read())
 
         self.cards = {name: Card(cj) for name, cj in card_json.items()}
 
@@ -91,7 +98,7 @@ class DeckDB:
     def _load(self, file_names):
         for deck_file in file_names:
             with open(deck_file) as fh:
-                yield Deck(json.load(fh))
+                yield Deck(json.loads(fh.read()))
 
     def card_graph(self):
         G = nx.Graph()
