@@ -54,7 +54,7 @@ class Card:
         _punc = re.sub(r"[\n,.]", " ", _lower)
         _cost = _punc.replace(":", " COST ")
         _mana = _cost.replace("}{", "} {")
-        _self = _mana.replace(self.name, 'SELF')
+        _self = _mana.replace(self.name.lower(), 'SELF')
         
         return _self
 
@@ -88,6 +88,12 @@ class CardDB:
 
     def items(self):
         return self.cards.items()
+
+    def dump_text(self, path):
+        with open(path, "w") as fh:
+            for card in self.values():
+                fh.write(card.sanitized_text())
+                fh.write("\n")
 
 class DeckDB:
     def __init__(self, glob_path="decks/*.json"):
