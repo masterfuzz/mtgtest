@@ -95,6 +95,9 @@ class CardDB:
                 fh.write(card.sanitized_text())
                 fh.write("\n")
 
+    def __getitem__(self, index):
+        return self.cards[index]
+
 class DeckDB:
     def __init__(self, glob_path="decks/*.json"):
         import glob
